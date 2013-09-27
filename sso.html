@@ -1,0 +1,82 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <link href="http://cdn.quilt.janrain.com/2.2.3/favicon.ico" rel="shortcut icon">
+
+    <!-- build:css({.tmp,app}) styles/main.css -->
+    <link rel="stylesheet" href="http://cdn.quilt.janrain.com/2.2.4/quilt.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
+
+    <!-- sso -->
+
+    <!-- SSO javascript reference -->
+    <script src="$SSO_JS_FILE" type="text/javascript"></script>
+    <script type="text/javascript">
+      janrain = {
+        capture: {
+          ui: {
+            UNIDASH_SSO_NOLOGIN_HANDLER: function(data) {
+              <!-- Unified Dashboard URL -->
+              window.location = 'https://$UD_URL/signin?dest='+encodeURIComponent(window.location.href);
+            }
+          }
+        }
+      }
+
+      JANRAIN.SSO.CAPTURE.check_login({
+        <!-- SSO server URL -->
+        sso_server: 'https://$SSO_URL',
+        <!-- Client ID -->
+        client_id: '$CLIENT_ID',
+        <!-- current app URL -->
+        redirect_uri: window.location.origin + '$APP_URL',
+        xd_receiver: '',
+        logout_uri: '',
+        nologin_callback: 'UNIDASH_SSO_NOLOGIN_HANDLER',
+        refresh: true
+      });
+    </script>
+    <!-- endsso -->
+</head>
+<div class="global_nav">
+  <div class="wrapper">
+    <a href="http://janrain.com" class="home_link"></a>
+    <ul class="nav-list">
+      <li><a id="unid_nav_contact" target="_blank" href="http://janrain.com/about/contact-us">CONTACT</a></li>
+      <li><a id="unid_nav_blog" target="_blank" href="http://janrain.com/blog">BLOG</a></li>
+      <li><a id="unid_nav_status" target="_blank" href="http://trust.janrain.com">STATUS</a></li>
+      <li><a id="unid_nav_developers" target="_blank" href="http://developers.janrain.com/">DEVELOPERS</a></li>
+      <li><a id="unid_nav_dashboard" class="selected" ng-href="{{auth.udUrl}}">DASHBOARD</a></li>
+    </ul>
+  </div>
+</div>
+<div ng-view class="max_height">
+  <div class="breadcrumbs_container">
+    <div class="wrapper">
+      <ul class="breadcrumbs">
+        <li><a ng-href="{{auth.udUrl}}">Home</a></li>
+        <li><a href="#/">Data Explorer</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container">
+    <div class="wrapper">
+      <div class="section grid-block clearfix">
+        <div class="auth-spinner">
+          <span us-spinner="{lines: 11, length: 5, width: 3, radius: 6, rotate: 28, speed: 1, trail: 60, className: 'spinner', zIndex: 2e9, top: 'auto', left: 'auto', hwaccel: false, color: '#273846', shadow: false}"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

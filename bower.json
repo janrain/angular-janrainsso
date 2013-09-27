@@ -1,0 +1,27 @@
+{
+  "name": "angular-janrainsso",
+  "version": "0.0.1",
+  "authors": [
+    "Joe Moon <joe@xoxomoon.com>"
+  ],
+  "description": "Angular module for Janrain SSO",
+  "main": "janrainsso.js",
+  "dependencies": {
+    "angular": ">=1.0.6",
+    "underscore": "~1.5.2"
+  },
+  "keywords": [
+    "janrain",
+    "angular",
+    "sso"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
