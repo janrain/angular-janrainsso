@@ -26,7 +26,7 @@
           ui: {
             UNIDASH_SSO_NOLOGIN_HANDLER: function(data) {
               <!-- Unified Dashboard URL -->
-              window.location = 'https://$UD_URL/signin?dest='+encodeURIComponent(window.location.href);
+              window.location = '$UD_URL/signin?dest='+encodeURIComponent(window.location.href);
             }
           }
         }
@@ -55,26 +55,19 @@
       <li><a id="unid_nav_blog" target="_blank" href="http://janrain.com/blog">BLOG</a></li>
       <li><a id="unid_nav_status" target="_blank" href="http://trust.janrain.com">STATUS</a></li>
       <li><a id="unid_nav_developers" target="_blank" href="http://developers.janrain.com/">DEVELOPERS</a></li>
-      <li><a id="unid_nav_dashboard" class="selected" ng-href="{{auth.udUrl}}">DASHBOARD</a></li>
+      <!-- Unified Dashboard URL -->
+      <li><a id="unid_nav_dashboard" class="selected" href="$UD_URL">DASHBOARD</a></li>
     </ul>
   </div>
 </div>
-<div ng-view class="max_height">
+<div class="max_height">
   <div class="breadcrumbs_container">
     <div class="wrapper">
       <ul class="breadcrumbs">
-        <li><a ng-href="{{auth.udUrl}}">Home</a></li>
+        <!-- Unified Dashboard URL -->
+        <li><a href="$UD_URL">Home</a></li>
         <li><a href="#/">Data Explorer</a></li>
       </ul>
-    </div>
-  </div>
-  <div class="container">
-    <div class="wrapper">
-      <div class="section grid-block clearfix">
-        <div class="auth-spinner">
-          <span us-spinner="{lines: 11, length: 5, width: 3, radius: 6, rotate: 28, speed: 1, trail: 60, className: 'spinner', zIndex: 2e9, top: 'auto', left: 'auto', hwaccel: false, color: '#273846', shadow: false}"></span>
-        </div>
-      </div>
     </div>
   </div>
 </div>
