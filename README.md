@@ -17,16 +17,21 @@
 E.g. in `app.js`:
 
     angular.module('Jiui', ['Jiui-dlman.controllers', 'Jiui-dlman.services', ... 'janrainSso'])
+
+and:
+
     .constant('ROOT_URL', '/download/')
     .constant('AUTH_URI', '/download-api/auth/')
     .constant('SSO_URL', 'https://ud-sso-testing.janrainsso.com')
     .constant('UD_URL', 'https://ud-staging.janrain.com')
 
+where `ROOT_URL` is the application's root (and the root location for SSO redirection), and `AUTH_URI` is the application backend's authentication endpoint.
+
 #### 5. Add "DashboardAuth" factory to resolve route for auth routes
 
 Again in `app.js`
 
-    .config( function ($routeProvider, $locationProvider, $httpProvider) {
+    .config(function ($routeProvider, $locationProvider, $httpProvider) {
         $routeProvider
         .when('/', {
             templateUrl: 'views/main.html',
