@@ -1,5 +1,5 @@
 'use strict';
-var app = angular.module('janrainSso', []);
+var app = angular.module('janrainSso', ['ngCookies']);
 
 app.factory('DashboardAuth', function($location, $cookies, $http, $window, AUTH_URI, ROOT_URL, SSO_URL, UD_URL) {
 
