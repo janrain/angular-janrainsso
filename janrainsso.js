@@ -13,18 +13,14 @@ app.factory('DashboardAuth', function($location, $cookies, $http, $window, AUTH_
 
   function getSession() {
     return $http.get(AUTH_URI)
-    .then(function(data) {
-      if (data.status = 200) {
+    .then(function(res) {
+      if (res.status = 200) {
         if ($cookies.originalRequest) {
           $location.path($cookies.originalRequest);
           delete $cookies.originalRequest;
         }
 
-        var auth = data.data;
-        auth.authenticated = true;
-        auth.logout = logout;
-
-        return auth;
+        return makeAuthObj(res.data);
       }
 
     }, handleSessionError);
@@ -49,7 +45,7 @@ app.factory('DashboardAuth', function($location, $cookies, $http, $window, AUTH_
         'redirect_uri': redirect_uri
       }
     })
-    .then(function(data) {
+    .then(function(res) {
 
       /* TODO: this is a hard redirect (page reload)
        * because the query string in the url is before
@@ -58,13 +54,7 @@ app.factory('DashboardAuth', function($location, $cookies, $http, $window, AUTH_
        */
       $window.location.href = ROOT_URL;
 
-      var auth = {
-        user: data.data
-      , authenticated: true
-      , logout: logout
-      };
-
-      return auth;
+      return makeAuthObj(res.data);
 
     }, handleSessionError);
   };
@@ -103,6 +93,14 @@ app.factory('DashboardAuth', function($location, $cookies, $http, $window, AUTH_
     });
 
     return queryObj;
+  };
+
+  function makeAuthObj(data) {
+
+    data.authenticated = true;
+    data.logout = logout;
+
+    return data;
   };
 
 });
