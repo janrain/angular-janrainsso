@@ -42,3 +42,11 @@ Again in `app.js`
             redirectTo: '/'
     });
 
+### Session
+
+The backend application should have an auth endpoint (configurable in the front end to `AUTH_URI`):
+
+GET: () -> sessionJson
+POST: (code, redirect_uri) -> { uuid, displayName, photos: [] }
+DELETE: () -> OK
+
