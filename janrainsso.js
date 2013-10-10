@@ -1,7 +1,7 @@
 'use strict';
-var app = angular.module('janrainSso', ['ngCookies']);
+var app = angular.module('janrainSso', ['ngCookies', 'janrainErrors']);
 
-app.factory('DashboardAuth', function($location, $cookies, $http, $window, AUTH_URI, ROOT_URL, SSO_URL, UD_URL) {
+app.factory('DashboardAuth', function($location, $cookies, $http, $window, AUTH_URI, ROOT_URL, SSO_URL, UD_URL, janrainErrorsSvc) {
 
   var params = getQueryParams();
 
@@ -23,7 +23,21 @@ app.factory('DashboardAuth', function($location, $cookies, $http, $window, AUTH_
         return makeAuthObj(res.data);
       }
 
-    }, handleSessionError);
+    }, function(data) {
+
+      if (data.status === 401) {
+
+        $cookies.originalRequest = $location.path();
+        $window.location.href = ROOT_URL + 'sso.html';
+        return { authenticated: false };
+
+      } else {
+
+        handleSessionError(data);
+
+      }
+
+    });
 
   };
 
@@ -61,23 +75,7 @@ app.factory('DashboardAuth', function($location, $cookies, $http, $window, AUTH_
 
   function handleSessionError(data) {
 
-    if (data.status === 401) {
-
-      $cookies.originalRequest = $location.path();
-      $window.location.href = ROOT_URL + 'sso.html';
-      return { authenticated: false };
-
-    }
-
-    /* TODO: error-handling audit */
-
-    if (data.status === 502) {
-      return console.log('Bad gateway on auth');
-    }
-
-    if (data.status === 404) {
-      return console.log('auth not found');
-    }
+    janrainErrorsSvc.httpError(data);
 
   };
 
