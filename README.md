@@ -6,13 +6,12 @@
 
     bower install --save janrain/angular-janrainsso
 
-#### 2. Copy `sso.html` to project root and edit configuration values
-
-#### 3. Add to scripts in html
+#### 2. Add to scripts in html
 
     <script src="bower_components/angular-janrainsso/janrainsso.js"></script>
+    <script src="bower_components/angular-janrainerrors/janrainerrors.js"></script>
 
-#### 4. Add to angular dependencies and add configuration values
+#### 3. Add to angular dependencies and add configuration values
 
 E.g. in `app.js`:
 
@@ -27,7 +26,7 @@ and:
 
 where `ROOT_URL` is the application's root (and the root location for SSO redirection), and `AUTH_URI` is the application backend's authentication endpoint.
 
-#### 5. Add "DashboardAuth" factory to resolve route for auth routes
+#### 4. Add "DashboardAuth" factory to resolve route for auth routes
 
 Again in `app.js`
 
