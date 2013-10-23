@@ -1,8 +1,11 @@
 'use strict';
-var app = angular.module('janrainSso', ['ngCookies', 'janrainErrors']);
+var app = angular.module('janrainSso', ['ngCookies', 'janrainErrors', 'janrainConfig']);
 
-app.factory('DashboardAuth', function($location, $cookies, $http, $window, $route, AUTH_URI, ROOT_URL, SSO_URL, UD_URL, CLIENT_ID, janrainErrorsSvc) {
+app.factory('DashboardAuth', function($location, $cookies, $http, $window, $route, ROOT_URL, janrainErrorsSvc, janrainConfig) {
 
+  return janrainConfig.then(function(configSvc) {
+
+  var config = configSvc.get();
   var params = getQueryParams();
 
   if (params && params.code && params.origin) {
@@ -12,7 +15,8 @@ app.factory('DashboardAuth', function($location, $cookies, $http, $window, $rout
   }
 
   function getSession() {
-    return $http.get(AUTH_URI)
+
+    return $http.get(config.authUrl)
     .then(function(res) {
       if (res.status = 200) {
         if ($cookies.originalRequest) {
@@ -32,23 +36,20 @@ app.factory('DashboardAuth', function($location, $cookies, $http, $window, $rout
           capture: {
             ui: {
               UNIDASH_SSO_NOLOGIN_HANDLER: function(data) {
-                $window.location = UD_URL
-                                 + '/signin?dest='
-                                 + encodeURIComponent($window.location.href)
-                                 ;
+                $window.location = config.udUrl + '/signin?dest=' + encodeURIComponent($window.location.href);
               }
             }
           }
         };
 
         JANRAIN.SSO.CAPTURE.check_login({
-          sso_server: SSO_URL
-        , client_id: CLIENT_ID
-        , redirect_uri: $window.location.origin + ROOT_URL
-        , xd_receiver: ''
-        , logout_uri: ''
-        , nologin_callback: 'UNIDASH_SSO_NOLOGIN_HANDLER'
-        , refresh: true
+          sso_server: config.ssoUrl,
+          client_id: config.clientId,
+          redirect_uri: $window.location.origin + ROOT_URL,
+          xd_receiver: '',
+          logout_uri: '',
+          nologin_callback: 'UNIDASH_SSO_NOLOGIN_HANDLER',
+          refresh: true
         });
 
         return { authenticated: false };
@@ -64,28 +65,21 @@ app.factory('DashboardAuth', function($location, $cookies, $http, $window, $rout
   };
 
   function logout() {
-		return $http.delete(AUTH_URI)
-		.then(function(){
-			$window.JANRAIN.SSO.CAPTURE.logout({
-	      sso_server: SSO_URL
-	    , logout_uri: UD_URL
-	   	});
-		});
-	};
+    return $http.delete(config.authUrl)
+    .then(function(){
+      $window.JANRAIN.SSO.CAPTURE.logout({
+        sso_server: config.ssoUrl,
+        logout_uri: config.udUrl,
+      });
+    });
+  };
 
   function createSession(token, origin) {
-    var redirect_uri = $window.location.protocol
-                     + '//'
-                     + $window.location.host
-                     + ROOT_URL
-                     + '?origin='
-                     + encodeURIComponent(origin)
-                     ;
-
-    return $http.post(AUTH_URI, null, {
+    var redirect_uri = $window.location.protocol + '//' + $window.location.host + ROOT_URL + '?origin=' + encodeURIComponent(origin);
+    return $http.post(config.authUrl, null, {
       params: {
-        'code': token
-      , 'redirect_uri': redirect_uri
+        'code': token,
+        'redirect_uri': redirect_uri
       }
     })
     .then(function(res) {
@@ -126,7 +120,6 @@ app.factory('DashboardAuth', function($location, $cookies, $http, $window, $rout
 
   function makeAuthObj(data) {
 
-    // TODO: normalize get and post return data
     if (!data.user) {
       data.user = data;
     }
@@ -136,6 +129,8 @@ app.factory('DashboardAuth', function($location, $cookies, $http, $window, $rout
 
     return data;
   };
+
+  });
 
 });
 
