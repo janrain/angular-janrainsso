@@ -10,6 +10,7 @@
 
     <script src="bower_components/angular-janrainsso/janrainsso.js"></script>
     <script src="bower_components/angular-janrainerrors/janrainerrors.js"></script>
+    <script src="bower_components/angular-janrainerrors/janrainconfig.js"></script>
 
 #### 3. Add to angular dependencies and add configuration values
 
@@ -19,12 +20,10 @@ E.g. in `app.js`:
 
 and:
 
-    .constant('ROOT_URL', '/download/')
-    .constant('AUTH_URI', '/download-api/auth/')
-    .constant('SSO_URL', 'https://ud-sso-testing.janrainsso.com')
-    .constant('UD_URL', 'https://ud-staging.janrain.com')
+    .constant('CONF_URL', '/ops/conf/')
+    .constant('ROOT_URL', '/download/');
 
-where `ROOT_URL` is the application's root (and the root location for SSO redirection), and `AUTH_URI` is the application backend's authentication endpoint.
+where `CONF_URL` is the configuration end point (see [angular-janrainconfig module](https://github.com/janrain/angular-janrainconfig)), and `ROOT_URL` is the application's root (and the root location for SSO redirection).
 
 #### 4. Add "DashboardAuth" factory to resolve route for auth routes
 
