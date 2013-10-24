@@ -80,7 +80,7 @@ app.factory('DashboardAuth', function($location, $cookies, $http, $window, $rout
     function createSession(token, origin) {
       var redirect_uri = $window.location.protocol + '//' + $window.location.host + ROOT_URL + '?origin=' + encodeURIComponent(origin);
       return $http.post(config.authUrl, null, {
-        params: { 'code': token,
+        params: { 'code': token
                 , 'redirect_uri': redirect_uri
                 }
       })
