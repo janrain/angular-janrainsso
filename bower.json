@@ -1,6 +1,6 @@
 {
   "name": "angular-janrainsso",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "authors": [
     "Joe Moon <joe@xoxomoon.com>"
   ],
@@ -10,7 +10,8 @@
     "angular": ">=1.0.6",
     "underscore": "~1.5.2",
     "angular-cookies": ">=1.0.6",
-    "angular-janrainerrors": "janrain/angular-janrainerrors#~0.0.1"
+    "angular-janrainerrors": "janrain/angular-janrainerrors#~0.0.1",
+    "angular-janrainconfig": "janrain/angular-janrainconfig#>=0.1.0"
   },
   "keywords": [
     "janrain",
