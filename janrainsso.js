@@ -1,21 +1,24 @@
 'use strict';
 var app = angular.module('janrainSso', ['ngCookies', 'janrainErrors', 'janrainConfig']);
 
-app.factory('DashboardAuth', function($location, $cookies, $http, $window, $route, ROOT_URL, janrainErrorsSvc, janrainConfig) {
+app.config(function($httpProvider) {
+  $httpProvider.interceptors.push('janrainAuthErrorInterceptor');
+});
 
-  return janrainConfig.then(function(configSvc) {
+app.factory('janrainSsoSession', function($window, $location, $cookies, $http, $q, $timeout, ROOT_URL, janrainConfig, janrainErrorsSvc) {
 
-    var config = configSvc.get()
-      , params = getQueryParams()
-      ;
+  return { get: getSession };
 
-    if (params && params.code && params.origin) {
-      return createSession(params.code, params.origin);
-    } else {
-      return getSession();
-    }
+  function getSession() {
 
-    function getSession() {
+    return janrainConfig.then(function(configSvc) {
+
+      var config = configSvc.get()
+        , params = getQueryParams()
+        , deferred = $q.defer()
+        ;
+
+      if (params && params.code && params.origin) { return createSession(params.code, params.origin); }
 
       return $http.get(config.authUrl)
       .then(function(res) {
@@ -28,15 +31,15 @@ app.factory('DashboardAuth', function($location, $cookies, $http, $window, $rout
           return makeAuthObj(res.data);
         }
 
-      }, function(data) {
+      }, function(res) {
 
-        if (data.status === 401) {
+        if (res.status === 401) {
 
           $cookies.originalRequest = $location.path();
           $window.janrain = {
             capture: {
               ui: {
-                UNIDASH_SSO_NOLOGIN_HANDLER: function(data) {
+                UNIDASH_SSO_NOLOGIN_HANDLER: function() {
                   $window.location = config.udUrl + '/signin?dest=' + encodeURIComponent($window.location.href);
                 }
               }
@@ -54,82 +57,140 @@ app.factory('DashboardAuth', function($location, $cookies, $http, $window, $rout
             }
           );
 
-          return { authenticated: false };
+          $timeout(function() {
+            deferred.resolve();
+          }, 5000); // timeout to wait for sso js to execute
+
+          return deferred.promise;
 
         } else {
 
-          handleSessionError(data);
+          handleSessionError(res);
 
         }
 
       });
 
-    };
+      function getQueryParams() {
+        var query = $window.location.search.substring(1)
+          , pairs = query.split('&')
+          , queryObj = {}
+          ;
 
-    function logout() {
-      return $http.delete(config.authUrl)
-      .then(function(){
-        $window.JANRAIN.SSO.CAPTURE.logout(
-          { sso_server: config.ssoUrl
-          , logout_uri: config.udUrl
-          }
-        );
-      });
-    };
+        _.each(pairs, function(pair) {
+          var pArr = pair.split('=');
+          queryObj[ decodeURIComponent( pArr[0] ) ] = decodeURIComponent( pArr[1] );
+        });
 
-    function createSession(token, origin) {
-      var redirect_uri = $window.location.protocol + '//' + $window.location.host + ROOT_URL + '?origin=' + encodeURIComponent(origin);
-      return $http.post(config.authUrl, null, {
-        params: { 'code': token
-                , 'redirect_uri': redirect_uri
-                }
-      })
-      .then(function(res) {
+        return queryObj;
+      };
 
-        /* TODO: this is a hard redirect (page reload)
-         * because the query string in the url is before
-         * the hash (#). The sso widget appears to be
-         * rewriting the the url it redirects the browser
-         * to to put the query string before the hash.
-         */
+      function createSession(token, origin) {
+        var redirect_uri = $window.location.protocol + '//' + $window.location.host + ROOT_URL + '?origin=' + encodeURIComponent(origin);
+        return $http.post(config.authUrl, null, {
+          params: { 'code': token
+                  , 'redirect_uri': redirect_uri
+                  }
+        })
+        .then(function(res) {
 
-        $window.location.href = ROOT_URL;
+          /* TODO: this is a hard redirect (page reload)
+           * because the query string in the url is before
+           * the hash (#). The sso widget appears to be
+           * rewriting the url it redirects the browser to
+           * in order to put the query string before the hash.
+           */
 
-        return makeAuthObj(res.data);
+          $window.location.href = ROOT_URL;
 
-      }, handleSessionError);
-    };
+          return makeAuthObj(res.data);
 
-    function handleSessionError(data) {
+        }, handleSessionError);
+      };
 
-      janrainErrorsSvc.httpError(data);
+      function handleSessionError(res) {
 
-    };
+        janrainErrorsSvc.log(res);
 
-    function getQueryParams() {
-      var query = $window.location.search.substring(1)
-        , pairs = query.split('&')
-        , queryObj = {}
-        ;
+      };
 
-      _.each(pairs, function(pair) {
-        var pArr = pair.split('=');
-        queryObj[ decodeURIComponent( pArr[0] ) ] = decodeURIComponent( pArr[1] );
-      });
+      function makeAuthObj(data) {
 
-      return queryObj;
-    };
+        if (!data.user) { data.user = data; }
+        data.authenticated = true;
+        data.logout = logout;
 
-    function makeAuthObj(data) {
+        return data;
+      };
 
-      if (!data.user) { data.user = data; }
-      data.authenticated = true;
-      data.logout = logout;
+      function logout() {
+        return $http.delete(config.authUrl)
+        .then(function(){
+          $window.JANRAIN.SSO.CAPTURE.logout(
+            { sso_server: config.ssoUrl
+            , logout_uri: config.udUrl
+            }
+          );
+        });
+      };
 
-      return data;
-    };
+    });
+  };
 
+});
+
+app.factory('DashboardAuth', function($q, janrainSsoSession) {
+
+  var deferred = $q.defer()
+    , resolvedAuth
+    ;
+
+  janrainSsoSession.get()
+  .then(function(auth) {
+    resolvedAuth = auth;
+    deferred.resolve(resolvedAuth);
   });
+
+  return deferred.promise;
+
+});
+
+app.factory('janrainAuthErrorInterceptor', function($q, $injector, $timeout) {
+
+  return {
+    'responseError': function(rejection) {
+
+      var configSvc = $injector.get('janrainConfig');
+
+      return configSvc.then(function(config) {
+
+        if (rejection.status === 401 && rejection.config.url !== config.get('authUrl')) {
+
+          $injector.get('janrainErrorsSvc').alert(
+            { type: 'HTTP 401'
+            , title: 'Unauthorized'
+            , body: 'Logging in...'
+            }
+          );
+
+          return $timeout(function() {
+
+            var ssoSvc = $injector.get('janrainSsoSession')
+              , http = $injector.get('$http')
+              ;
+
+            return ssoSvc.get().then(function(auth) {
+              return http(rejection.config);
+            });
+
+          }, 100); //timeout before retrying 401ed api calls
+        } else {
+          return $q.reject(rejection);
+        }
+
+      });
+    }
+  };
 
 });
 
