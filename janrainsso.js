@@ -103,7 +103,9 @@ app.factory('janrainSsoSession', function($window, $location, $cookies, $http, $
 
           $window.location.href = ROOT_URL;
 
-          return makeAuthObj(res.data);
+          // This is to avoid resolution of this promise because
+          // js continues to execute until new page actually loads:
+          throw new Error('Redirecting...');
 
         }, handleSessionError);
       };
