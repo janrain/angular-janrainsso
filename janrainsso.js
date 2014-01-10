@@ -57,10 +57,6 @@ app.factory('janrainSsoSession', function($window, $location, $cookies, $http, $
             }
           );
 
-          $timeout(function() {
-            deferred.resolve();
-          }, 5000); // timeout to wait for sso js to execute
-
           return deferred.promise;
 
         } else {
