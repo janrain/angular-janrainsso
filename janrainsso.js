@@ -22,10 +22,17 @@ app.factory('janrainSsoSession', function($window, $location, $cookies, $http, $
 
       return $http.get(config.authUrl)
       .then(function(res) {
+
         if (res.status = 200) {
-          if ($cookies.originalRequest) {
-            $location.path($cookies.originalRequest);
-            delete $cookies.originalRequest;
+
+          if ($cookies.originalPath) {
+            $location.path($cookies.originalPath);
+            delete $cookies.originalPath;
+          }
+
+          if ($cookies.originalSearch) {
+            $location.search(JSON.parse($cookies.originalSearch));
+            delete $cookies.originalSearch;
           }
 
           return makeAuthObj(res.data);
@@ -35,7 +42,9 @@ app.factory('janrainSsoSession', function($window, $location, $cookies, $http, $
 
         if (res.status === 401) {
 
-          $cookies.originalRequest = $location.path();
+          $cookies.originalPath = $location.path();
+          $cookies.originalSearch = JSON.stringify($location.search());
+
           $window.janrain = {
             capture: {
               ui: {
