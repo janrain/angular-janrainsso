@@ -1,6 +1,6 @@
 {
   "name": "angular-janrainsso",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "authors": [
     "Joe Moon <joe@xoxomoon.com>"
   ],
@@ -8,10 +8,10 @@
   "main": "janrainsso.js",
   "dependencies": {
     "angular": ">=1.0.6",
-    "underscore": "~1.5.2",
     "angular-cookies": ">=1.0.6",
     "angular-janrainerrors": "janrain/angular-janrainerrors#~0.0.1",
-    "angular-janrainconfig": "janrain/angular-janrainconfig#>=0.1.1"
+    "angular-janrainconfig": "janrain/angular-janrainconfig#>=0.1.1",
+    "lodash": "~2.4.1"
   },
   "keywords": [
     "janrain",
@@ -26,5 +26,8 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "resolutions": {
+    "lodash": "~2.4.1"
+  }
 }
