@@ -1,8 +1,8 @@
 {
   "name": "angular-janrainsso",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "authors": [
-    "Joe Moon <joe@xoxomoon.com>"
+    "Joe Moon <joe.moon@janrain.com>"
   ],
   "description": "Angular module for Janrain SSO",
   "main": "janrainsso.js",
