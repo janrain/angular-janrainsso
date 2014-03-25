@@ -1,4 +1,3 @@
-'use strict';
 var app = angular.module('janrainSso', ['ngCookies', 'janrainErrors', 'janrainConfig']);
 
 app.config(function($httpProvider) {
@@ -6,6 +5,7 @@ app.config(function($httpProvider) {
 });
 
 app.factory('janrainSsoSession', function($window, $location, $cookies, $http, $q, $timeout, ROOT_URL, janrainConfig, janrainErrorsSvc) {
+  'use strict';
 
   return { get: getSession };
 
