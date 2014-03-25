@@ -15,7 +15,6 @@ app.factory('janrainSsoSession', function($window, $location, $cookies, $http, $
 
       var config = configSvc.get()
         , params = getQueryParams()
-        , deferred = $q.defer()
         ;
 
       if (params && params.code && params.origin) { return createSession(params.code, params.origin); }
@@ -45,28 +44,7 @@ app.factory('janrainSsoSession', function($window, $location, $cookies, $http, $
           $cookies.originalPath = $location.path();
           $cookies.originalSearch = JSON.stringify($location.search());
 
-          $window.janrain = {
-            capture: {
-              ui: {
-                UNIDASH_SSO_NOLOGIN_HANDLER: function() {
-                  $window.location = config.udUrl + '/signin?dest=' + encodeURIComponent($window.location.href);
-                }
-              }
-            }
-          };
-
-          JANRAIN.SSO.CAPTURE.check_login(
-            { sso_server: config.ssoUrl
-            , client_id: config.clientId
-            , redirect_uri: $window.location.origin + ROOT_URL
-            , xd_receiver: ''
-            , logout_uri: ''
-            , nologin_callback: 'UNIDASH_SSO_NOLOGIN_HANDLER'
-            , refresh: true
-            }
-          );
-
-          return deferred.promise;
+          return redirectGetToken();
 
         } else {
 
@@ -93,9 +71,10 @@ app.factory('janrainSsoSession', function($window, $location, $cookies, $http, $
       function createSession(token, origin) {
         var redirect_uri = $window.location.protocol + '//' + $window.location.host + ROOT_URL + '?origin=' + encodeURIComponent(origin);
         return $http.post(config.authUrl, null, {
-          params: { 'code': token
-                  , 'redirect_uri': redirect_uri
-                  }
+          params: {
+            'code': token
+          , 'redirect_uri': redirect_uri
+          }
         })
         .then(function(res) {
 
@@ -114,6 +93,35 @@ app.factory('janrainSsoSession', function($window, $location, $cookies, $http, $
 
         }, handleSessionError);
       };
+
+      function redirectGetToken() {
+
+        var deferred = $q.defer();
+
+        $window.janrain = {
+          capture: {
+            ui: {
+              UNIDASH_SSO_NOLOGIN_HANDLER: function() {
+                $window.location = config.udUrl + '/signin?dest=' + encodeURIComponent($window.location.href);
+              }
+            }
+          }
+        };
+
+        JANRAIN.SSO.CAPTURE.check_login(
+          { sso_server: config.ssoUrl
+          , client_id: config.clientId
+          , redirect_uri: $window.location.origin + ROOT_URL
+          , xd_receiver: ''
+          , logout_uri: ''
+          , nologin_callback: 'UNIDASH_SSO_NOLOGIN_HANDLER'
+          , refresh: true
+          }
+        );
+
+        return deferred.promise;
+
+      }
 
       function handleSessionError(res) {
 
