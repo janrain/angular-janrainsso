@@ -91,7 +91,12 @@ app.factory('janrainSsoSession', function($window, $location, $cookies, $http, $
           // js continues to execute until new page actually loads:
           throw new Error('Redirecting...');
 
-        }, handleSessionError);
+        })
+        .catch(function(rejection) {
+          // if token is expired, redirect to get a fresh one
+          if (rejection.status === 404) { return redirectGetToken(); }
+          return handleSessionError(rejection);
+        });
       };
 
       function redirectGetToken() {
