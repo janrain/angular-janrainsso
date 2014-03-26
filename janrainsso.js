@@ -116,7 +116,7 @@ app.factory('janrainSsoSession', function($window, $location, $cookies, $http, $
         JANRAIN.SSO.CAPTURE.check_login(
           { sso_server: config.ssoUrl
           , client_id: config.clientId
-          , redirect_uri: $window.location.origin + ROOT_URL
+          , redirect_uri: $window.location.protocol + '//' + $window.location.host + ROOT_URL
           , xd_receiver: ''
           , logout_uri: ''
           , nologin_callback: 'UNIDASH_SSO_NOLOGIN_HANDLER'
