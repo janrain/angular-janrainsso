@@ -186,13 +186,6 @@ app.factory('janrainAuthErrorInterceptor', function($q, $injector, $timeout) {
 
         if (rejection.status === 401 && rejection.config.url !== config.get('authUrl')) {
 
-          $injector.get('janrainErrorsSvc').alert(
-            { type: 'HTTP 401'
-            , title: 'Unauthorized'
-            , body: 'Logging in...'
-            }
-          );
-
           return $timeout(function() {
 
             var ssoSvc = $injector.get('janrainSsoSession')
